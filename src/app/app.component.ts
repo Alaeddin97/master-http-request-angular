@@ -1,28 +1,59 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { pipe } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Post } from './post.model';
+import { PostService } from './posts.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
   loadedPosts = [];
+  isFetching: boolean;
+  error = null;
+  constructor(
+    private postService: PostService
+  ) {}
 
-  constructor(private http: HttpClient) {}
+  ngOnInit() {
+    this.isFetching = true;
+    this.postService.fetchPosts().subscribe((posts) => {
+      this.isFetching = false;
+      this.loadedPosts = posts;
+    });
+    this.postService.error.subscribe((error) => {
+      this.isFetching = false;
+      this.error = error;
+    });
+  }
 
-  ngOnInit() {}
-
-  onCreatePost(postData: { title: string; content: string }) {
-    // Send Http request
-    console.log(postData);
+  onCreatePost(postData: Post) {
+    this.postService.postAndStoreData(postData);
   }
 
   onFetchPosts() {
-    // Send Http request
+    this.isFetching = true;
+    this.postService.fetchPosts().subscribe((posts) => {
+      this.isFetching = false;
+      this.loadedPosts = posts;
+    });
+    this.postService.error.subscribe((error) => {
+      this.isFetching = false;
+      this.error = error;
+    });
   }
 
   onClearPosts() {
-    // Send Http request
+    this.postService.deletePosts().subscribe(() => {
+      this.loadedPosts = [];
+    });
+  }
+
+  handleError() {
+    this.error = null;
+    this.isFetching = false;
   }
 }

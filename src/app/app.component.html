@@ -49,9 +49,27 @@
       </button>
     </div>
   </div>
-  <div class="row">
+  <div class="row" *ngIf="!isFetching&&!error">
     <div class="col-xs-12 col-md-6 col-md-offset-3">
-      <p>No posts available!</p>
+      <p *ngIf="loadedPosts.length === 0">No posts available!</p>
     </div>
+    <div
+      class="col-xs-12 col-md-6 col-md-offset-3"
+      *ngIf="loadedPosts.length !== 0"
+    >
+    <h2>Posts</h2>
+      <li *ngFor="let post of loadedPosts">
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.content }}</p>
+      </li>
+    </div>
+  </div>
+  <div *ngIf="isFetching&&!error">
+    <p>Loading ...</p>
+  </div>
+  <div *ngIf="error" class="alert alert-danger">
+    <h2>Error detected</h2>
+    <p>{{error}}</p>
+    <button style="background-color: rgb(111, 36, 36);" (click)="handleError()">Get it</button>
   </div>
 </div>
